@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Add/Edit Attendance - Face Recognition Attendance System{% endblock %}
+
+{% block header %}{% if form.instance.pk %}Edit{% else %}Add{% endif %} Attendance{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-clipboard-check me-2"></i> Attendance Details
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.student.id_for_label }}" class="form-label">Student</label>
+                        {{ form.student.errors }}
+                        <select name="{{ form.student.name }}" 
+                                class="form-select {% if form.student.errors %}is-invalid{% endif %}"
+                                id="{{ form.student.id_for_label }}">
+                            <option value="">Select Student</option>
+                            {% for choice in form.student.field.queryset %}
+                            <option value="{{ choice.pk }}" {% if form.student.value|stringformat:"s" == choice.pk|stringformat:"s" %}selected{% endif %}>
+                                {{ choice.student_id }} - {{ choice.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.date.id_for_label }}" class="form-label">Date</label>
+                        {{ form.date.errors }}
+                        <input type="date" name="{{ form.date.name }}"
+                               class="form-control {% if form.date.errors %}is-invalid{% endif %}"
+                               id="{{ form.date.id_for_label }}"
+                               value="{{ form.date.value|date:'Y-m-d'|default:'' }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.time.id_for_label }}" class="form-label">Time</label>
+                        {{ form.time.errors }}
+                        <input type="time" name="{{ form.time.name }}"
+                               class="form-control {% if form.time.errors %}is-invalid{% endif %}"
+                               id="{{ form.time.id_for_label }}"
+                               value="{{ form.time.value|time:'H:i'|default:'' }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.status.id_for_label }}" class="form-label">Status</label>
+                        {{ form.status.errors }}
+                        <select name="{{ form.status.name }}"
+                                class="form-select {% if form.status.errors %}is-invalid{% endif %}"
+                                id="{{ form.status.id_for_label }}">
+                            <option value="Present" {% if form.status.value == 'Present' %}selected{% endif %}>Present</option>
+                            <option value="Absent" {% if form.status.value == 'Absent' %}selected{% endif %}>Absent</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i> Save Attendance
+                        </button>
+                        <a href="{% url 'attendance_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-times me-2"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

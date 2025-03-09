@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Face Recognition Attendance System{% endblock %}
+
+{% block header %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Student Count Card -->
+    <div class="col-md-4">
+        <div class="card dashboard-card">
+            <div class="card-body text-center">
+                <div class="dashboard-icon text-primary">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <h5 class="card-title">Total Students</h5>
+                <h2 class="mb-0">{{ student_count }}</h2>
+                <p class="text-muted">Registered in the system</p>
+                <a href="{% url 'student_list' %}" class="btn btn-outline-primary mt-3">
+                    <i class="fas fa-list me-2"></i> View All
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Attendance Today Card -->
+    <div class="col-md-4">
+        <div class="card dashboard-card">
+            <div class="card-body text-center">
+                <div class="dashboard-icon text-success">
+                    <i class="fas fa-clipboard-check"></i>
+                </div>
+                <h5 class="card-title">Today's Attendance</h5>
+                <h2 class="mb-0">{{ attendance_today }}</h2>
+                <p class="text-muted">Students marked present today</p>
+                <a href="{% url 'attendance_list' %}" class="btn btn-outline-success mt-3">
+                    <i class="fas fa-calendar-day me-2"></i> View Details
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Face Recognition Card -->
+    <div class="col-md-4">
+        <div class="card dashboard-card">
+            <div class="card-body text-center">
+                <div class="dashboard-icon text-danger">
+                    <i class="fas fa-camera"></i>
+                </div>
+                <h5 class="card-title">Face Recognition</h5>
+                <p class="text-muted">Take attendance using face recognition</p>
+                <a href="{% url 'face_recognition' %}" class="btn btn-outline-danger mt-3">
+                    <i class="fas fa-camera me-2"></i> Start Recognition
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <!-- Quick Actions Card -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-bolt me-2"></i> Quick Actions
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-3">
+                    <a href="{% url 'student_create' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-user-plus me-2"></i> Add New Student
+                    </a>
+                    <a href="{% url 'train_model' %}" class="btn btn-outline-info">
+                        <i class="fas fa-cogs me-2"></i> Train Recognition Model
+                    </a>
+                    <a href="{% url 'attendance_create' %}" class="btn btn-outline-success">
+                        <i class="fas fa-plus-circle me-2"></i> Add Attendance Manually
+                    </a>
+                    <a href="{% url 'export_attendance_csv' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-file-export me-2"></i> Export Attendance Report
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- System Status Card -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-info-circle me-2"></i> System Status
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-database me-2 text-primary"></i> Database Status</span>
+                        <span class="badge bg-success rounded-pill">Connected</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-brain me-2 text-primary"></i> Recognition Model</span>
+                        <span class="badge bg-{% if last_training and last_training.status == 'Success' %}success{% else %}warning{% endif %} rounded-pill">
+                            {% if last_training %}Trained{% else %}Not Trained{% endif %}
+                        </span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-clock me-2 text-primary"></i> Last Training</span>
+                        <span>
+                            {% if last_training %}
+                                {{ last_training.trained_at|date:"M d, Y H:i" }}
+                            {% else %}
+                                Never
+                            {% endif %}
+                        </span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-server me-2 text-primary"></i> System Version</span>
+                        <span>1.0.0</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

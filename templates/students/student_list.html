@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}Students - Face Recognition Attendance System{% endblock %}
+
+{% block header %}Students{% endblock %}
+
+{% block header_buttons %}
+<a href="{% url 'student_create' %}" class="btn btn-primary">
+    <i class="fas fa-plus me-2"></i> Add New Student
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <i class="fas fa-users me-2"></i> Student List
+            </div>
+            <div class="col-auto">
+                <form class="d-flex" method="get">
+                    <input type="search" name="q" class="form-control me-2" placeholder="Search students..." value="{{ request.GET.q }}">
+                    <button type="submit" class="btn btn-outline-primary">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if students %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Student ID</th>
+                        <th>Name</th>
+                        <th>Department</th>
+                        <th>Course</th>
+                        <th>Year</th>
+                        <th>Photo Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr>
+                        <td>{{ student.student_id }}</td>
+                        <td>{{ student.name }}</td>
+                        <td>{{ student.department }}</td>
+                        <td>{{ student.course }}</td>
+                        <td>{{ student.year }}</td>
+                        <td>
+                            {% if student.photo_sample %}
+                            <span class="badge bg-success">Photos Added</span>
+                            {% else %}
+                            <span class="badge bg-warning">No Photos</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{% url 'student_detail' student.student_id %}" class="btn btn-sm btn-info" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'student_update' student.student_id %}" class="btn btn-sm btn-primary" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'take_photo' student.student_id %}" class="btn btn-sm btn-success" title="Take Photos">
+                                    <i class="fas fa-camera"></i>
+                                </a>
+                                <a href="{% url 'student_delete' student.student_id %}" class="btn btn-sm btn-danger" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No students found</h5>
+            <p class="text-muted">Start by adding a new student to the system.</p>
+            <a href="{% url 'student_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i> Add New Student
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

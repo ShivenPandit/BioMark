@@ -1,0 +1,235 @@
+{% extends 'base.html' %}
+
+{% block title %}Help & Support - Face Recognition Attendance System{% endblock %}
+
+{% block header %}Help & Support{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-question-circle me-2"></i> Frequently Asked Questions
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="faqAccordion">
+                    <!-- Student Management -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                <i class="fas fa-user-graduate me-2"></i> Student Management
+                            </button>
+                        </h2>
+                        <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                <div class="mb-4">
+                                    <h6>How do I add a new student?</h6>
+                                    <p class="text-muted">
+                                        1. Click on "Students" in the sidebar<br>
+                                        2. Click "Add New Student" button<br>
+                                        3. Fill in the student details<br>
+                                        4. Click "Save Student"
+                                    </p>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <h6>How do I update student information?</h6>
+                                    <p class="text-muted">
+                                        1. Go to the Students list<br>
+                                        2. Click the edit (pencil) icon next to the student<br>
+                                        3. Update the required information<br>
+                                        4. Click "Save Student"
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Face Recognition -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                <i class="fas fa-camera me-2"></i> Face Recognition
+                            </button>
+                        </h2>
+                        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                <div class="mb-4">
+                                    <h6>How do I take student photos?</h6>
+                                    <p class="text-muted">
+                                        1. Go to student details page<br>
+                                        2. Click "Take Photos" button<br>
+                                        3. Ensure good lighting and clear face visibility<br>
+                                        4. Follow the on-screen instructions
+                                    </p>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <h6>Why isn't face recognition working?</h6>
+                                    <p class="text-muted">
+                                        1. Ensure the model is trained<br>
+                                        2. Check if student photos are added<br>
+                                        3. Verify proper lighting conditions<br>
+                                        4. Make sure the camera is working
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Attendance -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                <i class="fas fa-clipboard-list me-2"></i> Attendance Management
+                            </button>
+                        </h2>
+                        <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                <div class="mb-4">
+                                    <h6>How do I view attendance records?</h6>
+                                    <p class="text-muted">
+                                        1. Click "Attendance" in the sidebar<br>
+                                        2. Use filters to find specific records<br>
+                                        3. Export to CSV if needed
+                                    </p>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <h6>Can I manually add attendance?</h6>
+                                    <p class="text-muted">
+                                        Yes! Click "Add Manual Entry" in the attendance page and fill in the details.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <i class="fas fa-tools me-2"></i> Troubleshooting Guide
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <h6><i class="fas fa-exclamation-triangle me-2"></i> Common Issues</h6>
+                    <ul class="mb-0">
+                        <li>Camera not working - Check browser permissions</li>
+                        <li>Face not detected - Ensure proper lighting</li>
+                        <li>Recognition fails - Retrain the model</li>
+                        <li>System slow - Clear browser cache</li>
+                    </ul>
+                </div>
+                
+                <h6 class="mt-4">Best Practices</h6>
+                <ul class="text-muted">
+                    <li>Use well-lit environments for face recognition</li>
+                    <li>Take multiple photos per student</li>
+                    <li>Regularly backup attendance data</li>
+                    <li>Keep the system updated</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-headset me-2"></i> Support Options
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <i class="fas fa-life-ring text-primary fa-3x mb-3"></i>
+                    <h5>Need Help?</h5>
+                    <p class="text-muted">Choose your preferred support option below</p>
+                </div>
+                
+                <div class="list-group">
+                    <a href="mailto:shivenpandit2@gmail.com" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1"><i class="fas fa-envelope me-2"></i> Email Support</h6>
+                            <small>24/7</small>
+                        </div>
+                        <p class="mb-1 text-muted small">Get help via email</p>
+                    </a>
+                    
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1"><i class="fas fa-phone me-2"></i> Phone Support</h6>
+                            <small>10 AM - 6 PM</small>
+                        </div>
+                        <p class="mb-1 text-muted small">Call for immediate assistance</p>
+                    </a>
+                    
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1"><i class="fas fa-book me-2"></i> Documentation</h6>
+                            <small>Online</small>
+                        </div>
+                        <p class="mb-1 text-muted small">Read detailed guides</p>
+                    </a>
+                </div>
+                
+                <div class="alert alert-info mt-4">
+                    <i class="fas fa-clock me-2"></i>
+                    Support Hours: Monday - Friday, 10 AM to 6 PM
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <i class="fas fa-book-reader me-2"></i> Quick Start Guide
+            </div>
+            <div class="card-body">
+                <div class="timeline">
+                    <div class="timeline-item mb-3">
+                        <h6><i class="fas fa-user-plus text-primary me-2"></i> Step 1</h6>
+                        <p class="text-muted small">Add students to the system</p>
+                    </div>
+                    
+                    <div class="timeline-item mb-3">
+                        <h6><i class="fas fa-camera text-primary me-2"></i> Step 2</h6>
+                        <p class="text-muted small">Take student photos</p>
+                    </div>
+                    
+                    <div class="timeline-item mb-3">
+                        <h6><i class="fas fa-cogs text-primary me-2"></i> Step 3</h6>
+                        <p class="text-muted small">Train the recognition model</p>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <h6><i class="fas fa-check-circle text-primary me-2"></i> Step 4</h6>
+                        <p class="text-muted small">Start taking attendance</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .timeline-item {
+        position: relative;
+        padding-left: 20px;
+        border-left: 2px solid #e9ecef;
+    }
+    
+    .timeline-item:last-child {
+        border-left-color: transparent;
+    }
+    
+    .accordion-button:not(.collapsed) {
+        background-color: #f8f9fa;
+    }
+    
+    .list-group-item:hover {
+        transform: translateX(5px);
+        transition: transform 0.2s;
+    }
+</style>
+{% endblock %} 

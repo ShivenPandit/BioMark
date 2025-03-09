@@ -1,0 +1,215 @@
+{% extends 'base.html' %}
+
+{% block title %}Train Model - Face Recognition Attendance System{% endblock %}
+
+{% block header %}Train Recognition Model{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-cogs me-2"></i> Model Training
+            </div>
+            <div class="card-body">
+                {% if is_training %}
+                <!-- Training Progress Display -->
+                <div class="text-center py-4">
+                    <i class="fas fa-spinner fa-spin text-primary fa-3x mb-3"></i>
+                    <h5>Training in Progress</h5>
+                    
+                    <div class="mt-4">
+                        <div class="progress mb-3" style="height: 25px;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                 role="progressbar" 
+                                 style="width: {{ training_progress.percent_complete }}%;" 
+                                 aria-valuenow="{{ training_progress.percent_complete }}" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100">
+                                {{ training_progress.percent_complete }}%
+                            </div>
+                        </div>
+                        
+                        <div class="row text-center mt-4">
+                            <div class="col-md-4">
+                                <h6 class="text-muted">Status</h6>
+                                <p class="fw-bold">
+                                    {% if training_progress.status == 'initializing' %}
+                                        Initializing
+                                    {% elif training_progress.status == 'detecting_faces' %}
+                                        Detecting Faces
+                                    {% elif training_progress.status == 'training_model' %}
+                                        Training Model
+                                    {% elif training_progress.status == 'saving_model' %}
+                                        Saving Model
+                                    {% else %}
+                                        Processing
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div class="col-md-4">
+                                <h6 class="text-muted">Estimated Time Remaining</h6>
+                                <p class="fw-bold">{{ training_progress.time_remaining|default:"Calculating..." }}</p>
+                            </div>
+                            <div class="col-md-4">
+                                <h6 class="text-muted">Faces Detected</h6>
+                                <p class="fw-bold">{{ training_progress.detected_faces }}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="row text-center mt-3">
+                            <div class="col-md-6">
+                                <h6 class="text-muted">Photos Processed</h6>
+                                <p class="fw-bold">{{ training_progress.processed_photos }} / {{ training_progress.total_photos }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-muted">Students Processed</h6>
+                                <p class="fw-bold">{{ training_progress.processed_students }} / {{ training_progress.total_students }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info mt-4">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Training is in progress. This page will automatically refresh to show the latest progress.
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    {% if not students_with_photos %}
+                        <i class="fas fa-exclamation-circle text-warning fa-3x mb-3"></i>
+                        <h5 class="text-warning">No Student Photos Available</h5>
+                        <p class="text-muted">Add photos for students before training the model.</p>
+                        <a href="{% url 'student_list' %}" class="btn btn-primary mt-3">
+                            <i class="fas fa-camera me-2"></i> Add Student Photos
+                        </a>
+                    {% else %}
+                        <i class="fas fa-robot text-primary fa-3x mb-3"></i>
+                        <h5>Ready to Train Model</h5>
+                        <p class="text-muted">The system will train on {{ students_with_photos }} student photos.</p>
+                        <form method="post" class="mt-3">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-play me-2"></i> Start Training
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        {% if last_training %}
+        <div class="card mt-4">
+            <div class="card-header">
+                <i class="fas fa-history me-2"></i> Training History
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date & Time</th>
+                                <th>Status</th>
+                                <th>Trained By</th>
+                                <th>Message</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{{ last_training.trained_at|date:"F d, Y H:i" }}</td>
+                                <td>
+                                    <span class="badge bg-{% if last_training.status == 'Success' %}success{% else %}danger{% endif %}">
+                                        {{ last_training.status }}
+                                    </span>
+                                </td>
+                                <td>{{ last_training.trained_by.username }}</td>
+                                <td>{{ last_training.message|default:"No message" }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-info-circle me-2"></i> Training Information
+            </div>
+            <div class="card-body">
+                <h6 class="mb-3">What happens during training?</h6>
+                <ol class="list-unstyled">
+                    <li class="mb-3">
+                        <i class="fas fa-image text-primary me-2"></i>
+                        <strong>Photo Processing</strong>
+                        <p class="text-muted small ms-4 mb-0">System processes all student photos to detect and analyze facial features.</p>
+                    </li>
+                    <li class="mb-3">
+                        <i class="fas fa-fingerprint text-primary me-2"></i>
+                        <strong>Feature Extraction</strong>
+                        <p class="text-muted small ms-4 mb-0">Unique facial features are extracted and converted into numerical data.</p>
+                    </li>
+                    <li class="mb-3">
+                        <i class="fas fa-brain text-primary me-2"></i>
+                        <strong>Model Training</strong>
+                        <p class="text-muted small ms-4 mb-0">AI model learns to recognize each student based on their facial features.</p>
+                    </li>
+                    <li class="mb-3">
+                        <i class="fas fa-save text-primary me-2"></i>
+                        <strong>Model Saving</strong>
+                        <p class="text-muted small ms-4 mb-0">Trained model is saved and made ready for attendance recognition.</p>
+                    </li>
+                </ol>
+                
+                <div class="alert alert-info">
+                    <i class="fas fa-lightbulb me-2"></i>
+                    <strong>Tip:</strong> Make sure all students have clear, well-lit photos for best recognition accuracy.
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <i class="fas fa-chart-pie me-2"></i> Training Statistics
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6 mb-3">
+                        <h3 class="text-primary">{{ total_students|default:"0" }}</h3>
+                        <p class="text-muted small">Total Students</p>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <h3 class="text-success">{{ students_with_photos|default:"0" }}</h3>
+                        <p class="text-muted small">With Photos</p>
+                    </div>
+                    <div class="col-6">
+                        <h3 class="text-info">{{ total_photos|default:"0" }}</h3>
+                        <p class="text-muted small">Total Photos</p>
+                    </div>
+                    <div class="col-6">
+                        <h3 class="text-warning">{{ training_count|default:"0" }}</h3>
+                        <p class="text-muted small">Times Trained</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if is_training %}
+{% block extra_js %}
+<script>
+    // Auto-refresh the page to update progress
+    document.addEventListener('DOMContentLoaded', function() {
+        // Refresh every 5 seconds to show updated progress
+        setTimeout(function() {
+            window.location.reload();
+        }, 5000);
+    });
+</script>
+{% endblock %}
+{% endif %}
+{% endblock %} 

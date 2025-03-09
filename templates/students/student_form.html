@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - Face Recognition Attendance System{% endblock %}
+
+{% block header %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-user-graduate me-2"></i> Student Information
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="row g-3">
+                        <!-- Student ID -->
+                        <div class="col-md-6">
+                            <label for="{{ form.student_id.id_for_label }}" class="form-label">Student ID</label>
+                            {{ form.student_id.errors }}
+                            <input type="text" name="{{ form.student_id.name }}" 
+                                   class="form-control {% if form.student_id.errors %}is-invalid{% endif %}"
+                                   id="{{ form.student_id.id_for_label }}"
+                                   value="{{ form.student_id.value|default:'' }}"
+                                   {% if form.instance.pk %}readonly{% endif %}>
+                        </div>
+                        
+                        <!-- Name -->
+                        <div class="col-md-6">
+                            <label for="{{ form.name.id_for_label }}" class="form-label">Full Name</label>
+                            {{ form.name.errors }}
+                            <input type="text" name="{{ form.name.name }}"
+                                   class="form-control {% if form.name.errors %}is-invalid{% endif %}"
+                                   id="{{ form.name.id_for_label }}"
+                                   value="{{ form.name.value|default:'' }}">
+                        </div>
+                        
+                        <!-- Department -->
+                        <div class="col-md-6">
+                            <label for="{{ form.department.id_for_label }}" class="form-label">Department</label>
+                            {{ form.department.errors }}
+                            <input type="text" name="{{ form.department.name }}"
+                                   class="form-control {% if form.department.errors %}is-invalid{% endif %}"
+                                   id="{{ form.department.id_for_label }}"
+                                   value="{{ form.department.value|default:'' }}">
+                        </div>
+                        
+                        <!-- Course -->
+                        <div class="col-md-6">
+                            <label for="{{ form.course.id_for_label }}" class="form-label">Course</label>
+                            {{ form.course.errors }}
+                            <input type="text" name="{{ form.course.name }}"
+                                   class="form-control {% if form.course.errors %}is-invalid{% endif %}"
+                                   id="{{ form.course.id_for_label }}"
+                                   value="{{ form.course.value|default:'' }}">
+                        </div>
+                        
+                        <!-- Year -->
+                        <div class="col-md-4">
+                            <label for="{{ form.year.id_for_label }}" class="form-label">Year</label>
+                            {{ form.year.errors }}
+                            <input type="text" name="{{ form.year.name }}"
+                                   class="form-control {% if form.year.errors %}is-invalid{% endif %}"
+                                   id="{{ form.year.id_for_label }}"
+                                   value="{{ form.year.value|default:'' }}">
+                        </div>
+                        
+                        <!-- Semester -->
+                        <div class="col-md-4">
+                            <label for="{{ form.semester.id_for_label }}" class="form-label">Semester</label>
+                            {{ form.semester.errors }}
+                            <input type="text" name="{{ form.semester.name }}"
+                                   class="form-control {% if form.semester.errors %}is-invalid{% endif %}"
+                                   id="{{ form.semester.id_for_label }}"
+                                   value="{{ form.semester.value|default:'' }}">
+                        </div>
+                        
+                        <!-- Division -->
+                        <div class="col-md-4">
+                            <label for="{{ form.division.id_for_label }}" class="form-label">Division</label>
+                            {{ form.division.errors }}
+                            <input type="text" name="{{ form.division.name }}"
+                                   class="form-control {% if form.division.errors %}is-invalid{% endif %}"
+                                   id="{{ form.division.id_for_label }}"
+                                   value="{{ form.division.value|default:'' }}">
+                        </div>
+                        
+                        <!-- Roll Number -->
+                        <div class="col-md-4">
+                            <label for="{{ form.roll.id_for_label }}" class="form-label">Roll Number</label>
+                            {{ form.roll.errors }}
+                            <input type="text" name="{{ form.roll.name }}"
+                                   class="form-control {% if form.roll.errors %}is-invalid{% endif %}"
+                                   id="{{ form.roll.id_for_label }}"
+                                   value="{{ form.roll.value|default:'' }}">
+                        </div>
+                        
+                        <!-- Gender -->
+                        <div class="col-md-4">
+                            <label for="{{ form.gender.id_for_label }}" class="form-label">Gender</label>
+                            {{ form.gender.errors }}
+                            <select name="{{ form.gender.name }}"
+                                    class="form-select {% if form.gender.errors %}is-invalid{% endif %}"
+                                    id="{{ form.gender.id_for_label }}">
+                                <option value="">Select Gender</option>
+                                <option value="Male" {% if form.gender.value == 'Male' %}selected{% endif %}>Male</option>
+                                <option value="Female" {% if form.gender.value == 'Female' %}selected{% endif %}>Female</option>
+                                <option value="Other" {% if form.gender.value == 'Other' %}selected{% endif %}>Other</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Date of Birth -->
+                        <div class="col-md-4">
+                            <label for="{{ form.dob.id_for_label }}" class="form-label">Date of Birth</label>
+                            {{ form.dob.errors }}
+                            <input type="date" name="{{ form.dob.name }}"
+                                   class="form-control {% if form.dob.errors %}is-invalid{% endif %}"
+                                   id="{{ form.dob.id_for_label }}"
+                                   value="{{ form.dob.value|date:'Y-m-d'|default:'' }}">
+                        </div>
+                        
+                        <!-- Email -->
+                        <div class="col-md-6">
+                            <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
+                            {{ form.email.errors }}
+                            <input type="email" name="{{ form.email.name }}"
+                                   class="form-control {% if form.email.errors %}is-invalid{% endif %}"
+                                   id="{{ form.email.id_for_label }}"
+                                   value="{{ form.email.value|default:'' }}">
+                        </div>
+                        
+                        <!-- Phone -->
+                        <div class="col-md-6">
+                            <label for="{{ form.phone.id_for_label }}" class="form-label">Phone</label>
+                            {{ form.phone.errors }}
+                            <input type="tel" name="{{ form.phone.name }}"
+                                   class="form-control {% if form.phone.errors %}is-invalid{% endif %}"
+                                   id="{{ form.phone.id_for_label }}"
+                                   value="{{ form.phone.value|default:'' }}">
+                        </div>
+                        
+                        <!-- Address -->
+                        <div class="col-12">
+                            <label for="{{ form.address.id_for_label }}" class="form-label">Address</label>
+                            {{ form.address.errors }}
+                            <textarea name="{{ form.address.name }}"
+                                      class="form-control {% if form.address.errors %}is-invalid{% endif %}"
+                                      id="{{ form.address.id_for_label }}"
+                                      rows="3">{{ form.address.value|default:'' }}</textarea>
+                        </div>
+                        
+                        <!-- Teacher -->
+                        <div class="col-12">
+                            <label for="{{ form.teacher.id_for_label }}" class="form-label">Teacher</label>
+                            {{ form.teacher.errors }}
+                            <input type="text" name="{{ form.teacher.name }}"
+                                   class="form-control {% if form.teacher.errors %}is-invalid{% endif %}"
+                                   id="{{ form.teacher.id_for_label }}"
+                                   value="{{ form.teacher.value|default:'' }}">
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i> Save Student
+                        </button>
+                        <a href="{% url 'student_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-times me-2"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

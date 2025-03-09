@@ -1,0 +1,338 @@
+{% extends 'base.html' %}
+
+{% block title %}Face Recognition - Face Recognition Attendance System{% endblock %}
+
+{% block header %}Face Recognition{% endblock %}
+
+{% block extra_css %}
+<style>
+    #video-container {
+        position: relative;
+        width: 100%;
+        max-width: 640px;
+        margin: 0 auto;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    #video {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+    
+    #canvas {
+        display: none;
+    }
+    
+    #capture-btn {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10;
+    }
+    
+    .recognition-result {
+        display: none;
+        margin-top: 20px;
+    }
+    
+    .loading-spinner {
+        display: none;
+        text-align: center;
+        margin: 20px 0;
+    }
+    
+    .face-box {
+        position: absolute;
+        border: 3px solid #00ff00;
+        box-sizing: border-box;
+    }
+    
+    .confidence-badge {
+        display: inline-block;
+        padding: 0.25em 0.6em;
+        font-size: 75%;
+        font-weight: 700;
+        line-height: 1;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: baseline;
+        border-radius: 0.25rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-camera me-2"></i> Camera Feed
+            </div>
+            <div class="card-body">
+                {% if not model_exists %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Model not trained!</strong> Please <a href="{% url 'train_model' %}">train the model</a> before using face recognition.
+                </div>
+                {% endif %}
+                
+                <div id="video-container">
+                    <video id="video" autoplay playsinline></video>
+                    <canvas id="canvas"></canvas>
+                    <button id="capture-btn" class="btn btn-danger btn-lg" {% if not model_exists %}disabled{% endif %}>
+                        <i class="fas fa-camera me-2"></i> Capture
+                    </button>
+                </div>
+                
+                <div class="loading-spinner" id="loading-spinner">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Processing face recognition...</p>
+                </div>
+                
+                <div class="recognition-result" id="recognition-result">
+                    <div class="alert alert-success">
+                        <h5 class="alert-heading">
+                            <i class="fas fa-check-circle me-2"></i> 
+                            Student Recognized!
+                        </h5>
+                        <hr>
+                        <div id="recognized-students-container">
+                            <!-- Recognized students will be displayed here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="recognition-result" id="recognition-error">
+                    <div class="alert alert-danger">
+                        <h5 class="alert-heading">
+                            <i class="fas fa-exclamation-circle me-2"></i> 
+                            Recognition Failed
+                        </h5>
+                        <hr>
+                        <p id="error-message">No face detected or unable to recognize.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-info-circle me-2"></i> Instructions
+            </div>
+            <div class="card-body">
+                <ol class="list-group list-group-numbered">
+                    <li class="list-group-item">Ensure you are in a well-lit area</li>
+                    <li class="list-group-item">Position your face clearly in the camera</li>
+                    <li class="list-group-item">Click the "Capture" button to take attendance</li>
+                    <li class="list-group-item">Wait for the system to recognize your face</li>
+                    <li class="list-group-item">Attendance will be marked automatically</li>
+                </ol>
+                
+                <div class="alert alert-info mt-3">
+                    <i class="fas fa-lightbulb me-2"></i>
+                    <strong>Tip:</strong> For best results, make sure your face is well-lit and directly facing the camera.
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <i class="fas fa-history me-2"></i> Recent Attendance
+            </div>
+            <div class="card-body">
+                {% if recent_attendance %}
+                <div class="list-group">
+                    {% for attendance in recent_attendance %}
+                    <div class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ attendance.student.student_id }}</h6>
+                            <small>{{ attendance.time|time:"H:i" }}</small>
+                        </div>
+                        <p class="mb-1">Student ID: {{ attendance.student.student_id }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted text-center">No attendance records for today yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const captureBtn = document.getElementById('capture-btn');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const recognitionResult = document.getElementById('recognition-result');
+        const recognitionError = document.getElementById('recognition-error');
+        const recognizedStudentsContainer = document.getElementById('recognized-students-container');
+        const errorMessage = document.getElementById('error-message');
+        
+        // Access the webcam
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function(stream) {
+                    video.srcObject = stream;
+                })
+                .catch(function(error) {
+                    console.error("Error accessing the camera: ", error);
+                    alert("Could not access the camera. Please make sure you have granted permission.");
+                });
+        } else {
+            alert("Sorry, your browser does not support accessing the camera.");
+        }
+        
+        // Capture button click event
+        captureBtn.addEventListener('click', function() {
+            // Reset previous results
+            recognitionResult.style.display = 'none';
+            recognitionError.style.display = 'none';
+            recognizedStudentsContainer.innerHTML = '';
+            
+            // Set canvas dimensions to match video
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            // Draw the current video frame on the canvas
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // Get the image as base64 data URL
+            const imageData = canvas.toDataURL('image/jpeg');
+            
+            // Show loading spinner
+            loadingSpinner.style.display = 'block';
+            
+            // Create form data
+            const formData = new FormData();
+            formData.append('image', imageData);
+            formData.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+            
+            // Send the image to the server for face recognition
+            fetch('{% url "process_face_recognition" %}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Hide loading spinner
+                loadingSpinner.style.display = 'none';
+                
+                console.log("Recognition response:", data);
+                
+                if (data.status === 'success') {
+                    // Create HTML for each recognized student
+                    let studentsHtml = '';
+                    
+                    data.students.forEach(student => {
+                        // Handle confidence display
+                        let confidencePercent = student.confidence;
+                        if (typeof confidencePercent === 'number') {
+                            // If it's already a number between 0-100, use it directly
+                            if (confidencePercent > 1) {
+                                confidencePercent = Math.round(confidencePercent);
+                            } else {
+                                // If it's a decimal between 0-1, convert to percentage
+                                confidencePercent = Math.round(confidencePercent * 100);
+                            }
+                        } else {
+                            // Default if confidence is not a valid number
+                            confidencePercent = 0;
+                        }
+                        
+                        const confidenceClass = confidencePercent > 80 ? 'bg-success' : 
+                                              confidencePercent > 60 ? 'bg-warning' : 'bg-danger';
+                        
+                        // Create student card
+                        studentsHtml += `
+                            <div class="card mb-2">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h6 class="card-title">${student.name || 'Unknown'}</h6>
+                                        <span class="confidence-badge ${confidenceClass}">${confidencePercent}%</span>
+                                    </div>
+                                    <p class="card-text mb-1"><strong>Student ID:</strong> ${student.student_id || 'N/A'}</p>
+                                    <p class="card-text mb-1"><strong>Course:</strong> ${student.course || 'N/A'}</p>
+                                    <p class="card-text mb-0">
+                                        <strong>Attendance:</strong> 
+                                        ${student.attendance_marked ? 
+                                            '<span class="text-success">Marked</span>' : 
+                                            '<span class="text-danger">Failed</span>'}
+                                    </p>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    // Add current date and time
+                    const now = new Date();
+                    studentsHtml += `
+                        <div class="text-end mt-2">
+                            <small class="text-muted">
+                                <strong>Date:</strong> ${now.toLocaleDateString()} | 
+                                <strong>Time:</strong> ${now.toLocaleTimeString()}
+                            </small>
+                        </div>
+                    `;
+                    
+                    // Show recognition result
+                    recognizedStudentsContainer.innerHTML = studentsHtml;
+                    recognitionResult.style.display = 'block';
+                    
+                    // Refresh the page after 3 seconds to update the recent attendance list
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 3000);
+                } else {
+                    // Show error message
+                    errorMessage.textContent = data.message || 'Unknown error occurred';
+                    recognitionError.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                loadingSpinner.style.display = 'none';
+                errorMessage.textContent = 'An error occurred during face recognition. Please try again.';
+                recognitionError.style.display = 'block';
+            });
+        });
+        
+        // Function to get CSRF token from cookies
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    });
+</script>
+{% endblock %} 

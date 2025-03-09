@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+
+{% block title %}Attendance - Face Recognition Attendance System{% endblock %}
+
+{% block header %}Attendance Records{% endblock %}
+
+{% block header_buttons %}
+<div class="btn-group" role="group">
+    <a href="{% url 'attendance_create' %}" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i> Add Manual Entry
+    </a>
+    <a href="{% url 'export_attendance_csv' %}" class="btn btn-success">
+        <i class="fas fa-file-export me-2"></i> Export CSV
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <i class="fas fa-clipboard-list me-2"></i> Attendance Records
+            </div>
+            <div class="col-auto">
+                <form class="d-flex" method="get">
+                    <div class="input-group me-2">
+                        {{ form.date }}
+                    </div>
+                    <div class="input-group me-2">
+                        {{ form.student }}
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-filter me-2"></i> Filter
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if attendances %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Student ID</th>
+                        <th>Name</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for attendance in attendances %}
+                    <tr>
+                        <td>{{ attendance.student.student_id }}</td>
+                        <td>{{ attendance.student.name }}</td>
+                        <td>{{ attendance.date|date:"F d, Y" }}</td>
+                        <td>{{ attendance.time|time:"H:i" }}</td>
+                        <td>
+                            <span class="badge bg-{% if attendance.status == 'Present' %}success{% else %}danger{% endif %}">
+                                {{ attendance.status }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{% url 'attendance_update' attendance.pk %}" class="btn btn-sm btn-primary" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'attendance_delete' attendance.pk %}" class="btn btn-sm btn-danger" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No attendance records found</h5>
+            <p class="text-muted">Use face recognition or add manual entries to record attendance.</p>
+            <div class="mt-3">
+                <a href="{% url 'face_recognition' %}" class="btn btn-primary me-2">
+                    <i class="fas fa-camera me-2"></i> Use Face Recognition
+                </a>
+                <a href="{% url 'attendance_create' %}" class="btn btn-secondary">
+                    <i class="fas fa-plus me-2"></i> Add Manual Entry
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if attendances %}
+<div class="card mt-4">
+    <div class="card-header">
+        <i class="fas fa-chart-bar me-2"></i> Attendance Summary
+    </div>
+    <div class="card-body">
+        <div class="row text-center">
+            <div class="col-md-4">
+                <h3 class="text-primary">{{ attendances|length }}</h3>
+                <p class="text-muted">Total Records</p>
+            </div>
+            <div class="col-md-4">
+                <h3 class="text-success">
+                    {{ attendances|dictsortreversed:"date"|slice:":1"|first|date:"F d, Y" }}
+                </h3>
+                <p class="text-muted">Latest Record</p>
+            </div>
+            <div class="col-md-4">
+                <h3 class="text-info">
+                    {{ attendances|length|divisibleby:1 }}
+                </h3>
+                <p class="text-muted">Students Today</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .input-group .form-control, .input-group .form-select {
+        min-width: 200px;
+    }
+    
+    @media (max-width: 768px) {
+        .input-group {
+            margin-bottom: 10px;
+        }
+        
+        .input-group .form-control, .input-group .form-select {
+            min-width: auto;
+        }
+    }
+</style>
+{% endblock %} 

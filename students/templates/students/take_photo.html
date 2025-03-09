@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% block title %}Take Photo - {{ student.full_name }}{% endblock %}
+
+{% block header %}Take Photo - {{ student.full_name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Capture Photos for Face Recognition</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> Please ensure good lighting and a clear face view. We'll take multiple photos for better recognition.
+                    </div>
+
+                    <!-- Webcam container -->
+                    <div class="text-center mb-4">
+                        <video id="webcam" class="img-fluid rounded" style="max-width: 640px; max-height: 480px;" autoplay playsinline></video>
+                    </div>
+
+                    <!-- Captured photos grid -->
+                    <div class="row mb-4" id="capturedPhotos">
+                        <div class="col-12">
+                            <h6 class="mb-3">Captured Photos (<span id="photoCount">0</span>/5)</h6>
+                        </div>
+                        <div class="col-12">
+                            <div class="d-flex flex-wrap gap-2" id="photoGrid"></div>
+                        </div>
+                    </div>
+
+                    <!-- Controls -->
+                    <div class="d-flex justify-content-center gap-3">
+                        <button id="captureBtn" class="btn btn-primary">
+                            <i class="fas fa-camera"></i> Capture Photo
+                        </button>
+                        <button id="retakeBtn" class="btn btn-secondary" disabled>
+                            <i class="fas fa-redo"></i> Retake Photos
+                        </button>
+                        <form id="photoForm" method="POST" style="display: inline;">
+                            {% csrf_token %}
+                            <input type="hidden" id="photoData" name="photos">
+                            <button type="submit" id="saveBtn" class="btn btn-success" disabled>
+                                <i class="fas fa-save"></i> Save Photos
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Instructions Card -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Instructions</h5>
+                </div>
+                <div class="card-body">
+                    <ol class="mb-0">
+                        <li>Ensure your face is well-lit and clearly visible</li>
+                        <li>Look directly at the camera</li>
+                        <li>Take 5 different photos with slightly different angles</li>
+                        <li>Avoid extreme angles or expressions</li>
+                        <li>Make sure the background is relatively plain</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const webcam = document.getElementById('webcam');
+        const captureBtn = document.getElementById('captureBtn');
+        const retakeBtn = document.getElementById('retakeBtn');
+        const saveBtn = document.getElementById('saveBtn');
+        const photoGrid = document.getElementById('photoGrid');
+        const photoCount = document.getElementById('photoCount');
+        const photoForm = document.getElementById('photoForm');
+        const photoData = document.getElementById('photoData');
+        
+        let capturedPhotos = [];
+        const MAX_PHOTOS = 5;
+
+        // Start webcam
+        async function startWebcam() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        width: { ideal: 640 },
+                        height: { ideal: 480 },
+                        facingMode: 'user'
+                    } 
+                });
+                webcam.srcObject = stream;
+            } catch (err) {
+                console.error('Error accessing webcam:', err);
+                alert('Unable to access webcam. Please make sure you have granted camera permissions.');
+            }
+        }
+
+        // Capture photo
+        captureBtn.addEventListener('click', function() {
+            if (capturedPhotos.length >= MAX_PHOTOS) {
+                alert('Maximum number of photos reached. Click "Retake" to start over.');
+                return;
+            }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = webcam.videoWidth;
+            canvas.height = webcam.videoHeight;
+            canvas.getContext('2d').drawImage(webcam, 0, 0);
+            
+            // Create thumbnail
+            const img = document.createElement('img');
+            img.src = canvas.toDataURL('image/jpeg');
+            img.className = 'img-thumbnail';
+            img.style.width = '100px';
+            img.style.height = '100px';
+            img.style.objectFit = 'cover';
+            
+            const photoDiv = document.createElement('div');
+            photoDiv.appendChild(img);
+            photoGrid.appendChild(photoDiv);
+            
+            capturedPhotos.push(canvas.toDataURL('image/jpeg'));
+            photoCount.textContent = capturedPhotos.length;
+            
+            if (capturedPhotos.length === MAX_PHOTOS) {
+                captureBtn.disabled = true;
+            }
+            
+            retakeBtn.disabled = false;
+            saveBtn.disabled = capturedPhotos.length < MAX_PHOTOS;
+        });
+
+        // Retake photos
+        retakeBtn.addEventListener('click', function() {
+            capturedPhotos = [];
+            photoGrid.innerHTML = '';
+            photoCount.textContent = '0';
+            captureBtn.disabled = false;
+            retakeBtn.disabled = true;
+            saveBtn.disabled = true;
+        });
+
+        // Save photos
+        photoForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (capturedPhotos.length < MAX_PHOTOS) {
+                alert('Please capture all 5 photos before saving.');
+                return;
+            }
+            
+            photoData.value = JSON.stringify(capturedPhotos);
+            this.submit();
+        });
+
+        // Initialize webcam
+        startWebcam();
+    });
+</script>
+{% endblock %} 
