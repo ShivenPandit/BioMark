@@ -99,6 +99,9 @@ def train_model(request):
                 
                 # Verify that student directories exist and contain images
                 valid_student_dirs = []
+                missing_directories = []
+                empty_directories = []
+                
                 for student in students:
                     student_photo_dir = os.path.join(settings.MEDIA_ROOT, 'student_photos', str(student.student_id))
                     
@@ -106,6 +109,7 @@ def train_model(request):
                     if not os.path.exists(student_photo_dir):
                         os.makedirs(student_photo_dir, exist_ok=True)
                         print(f"Created missing directory for student {student.student_id}: {student_photo_dir}")
+                        missing_directories.append(student.student_id)
                         continue
                     
                     # Check if directory contains images
@@ -117,10 +121,14 @@ def train_model(request):
                         valid_student_dirs.append((student, student_photo_dir, image_files))
                         print(f"Found {len(image_files)} images for student {student.student_id}")
                     else:
+                        empty_directories.append(student.student_id)
                         print(f"No images found for student {student.student_id} in {student_photo_dir}")
                 
                 if not valid_student_dirs:
-                    messages.error(request, "No student photos found. Please add photos for students before training.")
+                    error_message = "No student photos found. Please add photos for students before training."
+                    if missing_directories or empty_directories:
+                        error_message += f" Missing directories: {missing_directories}. Empty directories: {empty_directories}."
+                    messages.error(request, error_message)
                     return redirect('train_model')
                 
                 print(f"Found {len(valid_student_dirs)} students with valid photos")
@@ -165,8 +173,8 @@ def train_model(request):
                                 faces = face_cascade.detectMultiScale(
                                     gray,
                                     scaleFactor=1.1,
-                                    minNeighbors=3,
-                                    minSize=(20, 20)
+                                    minNeighbors=2,  # More lenient parameter for training
+                                    minSize=(15, 15)  # Smaller minimum face size
                                 )
                                 
                                 if len(faces) > 0:
@@ -340,8 +348,8 @@ def process_face_recognition(request):
             faces = face_cascade.detectMultiScale(
                 gray,
                 scaleFactor=1.1,
-                minNeighbors=5,
-                minSize=(30, 30)
+                minNeighbors=3,
+                minSize=(20, 20)
             )
             
             if len(faces) == 0:
@@ -370,7 +378,7 @@ def process_face_recognition(request):
                     face_distances.append(distance)
                     
                     # Consider it a match if distance is below threshold
-                    if distance < 10.0:  # Adjust threshold as needed
+                    if distance < 15.0:  # Adjusted threshold to be more lenient
                         matches.append(i)
                 
                 if matches:
@@ -381,6 +389,9 @@ def process_face_recognition(request):
                     # Calculate confidence score (inverse of distance, normalized)
                     confidence = max(0, 100 - (face_distances[best_match_idx] * 10))
                     confidence = min(confidence, 100)  # Cap at 100%
+                    
+                    # Log recognition details
+                    print(f"Recognition success - Student ID: {student_id}, Distance: {face_distances[best_match_idx]:.2f}, Confidence: {confidence:.2f}%")
                     
                     # Get student details
                     try:
@@ -426,10 +437,22 @@ def process_face_recognition(request):
                     'students': recognized_students
                 })
             else:
-                return JsonResponse({
-                    'status': 'error',
-                    'message': 'No students recognized'
-                })
+                # No students were recognized from the detected faces
+                # Get minimum distance info for debugging if available
+                if 'face_distances' in locals() and len(face_distances) > 0:
+                    min_distance_idx = np.argmin(face_distances)
+                    min_distance = face_distances[min_distance_idx]
+                    closest_student_id = known_face_names[min_distance_idx]
+                    print(f"Face detected but not recognized. Closest match: Student ID {closest_student_id}, Distance: {min_distance:.2f} (threshold: 15.0)")
+                    return JsonResponse({
+                        'status': 'error',
+                        'message': f'Face detected but not recognized. Closest match had distance {min_distance:.2f} (threshold: 15.0)'
+                    })
+                else:
+                    return JsonResponse({
+                        'status': 'error',
+                        'message': 'No students recognized'
+                    })
                 
         except Exception as e:
             import traceback
