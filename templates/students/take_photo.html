@@ -61,7 +61,8 @@
                         <li>Ensure your face is well-lit and clearly visible</li>
                         <li>Look directly at the camera</li>
                         <li>Take 5 different photos with slightly different angles</li>
-                        <li>Avoid extreme angles or expressions</li>
+                        <li>Capture different expressions (neutral, slight smile, etc.)</li>
+                        <li>Include variations in head position (straight, slightly tilted)</li>
                         <li>Make sure the background is relatively plain</li>
                     </ol>
                 </div>
@@ -135,7 +136,7 @@
             }
             
             retakeBtn.disabled = false;
-            saveBtn.disabled = capturedPhotos.length < MAX_PHOTOS;
+            saveBtn.disabled = capturedPhotos.length < 1;
         });
 
         // Retake photos
@@ -151,8 +152,8 @@
         // Save photos
         photoForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            if (capturedPhotos.length < MAX_PHOTOS) {
-                alert('Please capture all 5 photos before saving.');
+            if (capturedPhotos.length < 1) {
+                alert('Please capture at least 1 photo before saving.');
                 return;
             }
             
