@@ -4,6 +4,7 @@ Django settings for face_recognition_web_project project.
 
 from pathlib import Path
 import os
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -72,10 +73,7 @@ WSGI_APPLICATION = 'face_recognition_web_project.wsgi.application'
 # Database
 _db_path = os.environ.get('DJANGO_DB_PATH', str(BASE_DIR / 'face_recognizer.db'))
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': _db_path,
-    }
+    'default': dj_database_url.config(default=f"sqlite:///{_db_path}", conn_max_age=600)
 }
 
 # Password validation
