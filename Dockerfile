@@ -24,7 +24,7 @@ RUN pip install --upgrade pip setuptools wheel cmake \
     && mv /usr/local/bin/cmake /usr/local/bin/cmake.real \
     && printf '#!/bin/sh\nexec /usr/local/bin/cmake.real "$@" -DCMAKE_POLICY_VERSION_MINIMUM=3.5\n' > /usr/local/bin/cmake \
     && chmod +x /usr/local/bin/cmake \
-    && pip install --no-cache-dir --prefer-binary dlib==19.24.2 \
+    && pip install --no-cache-dir dlib-bin==19.24.2 \
     && pip install -r requirements.txt
 
 COPY . .
