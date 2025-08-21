@@ -20,10 +20,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt ./
-# cmake wrapper to append policy flag required by dlib's vendored pybind11
-RUN printf '#!/bin/sh\nexec /usr/bin/cmake "$@" -DCMAKE_POLICY_VERSION_MINIMUM=3.5\n' > /usr/local/bin/cmake \
-    && chmod +x /usr/local/bin/cmake
 RUN pip install --upgrade pip setuptools wheel cmake \
+    && mv /usr/local/bin/cmake /usr/local/bin/cmake.real \
+    && printf '#!/bin/sh\nexec /usr/local/bin/cmake.real "$@" -DCMAKE_POLICY_VERSION_MINIMUM=3.5\n' > /usr/local/bin/cmake \
+    && chmod +x /usr/local/bin/cmake \
     && pip install --no-cache-dir --prefer-binary dlib==19.24.2 \
     && pip install -r requirements.txt
 
