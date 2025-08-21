@@ -1,4 +1,4 @@
-FROM python:3.10-slim
+FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -12,12 +12,18 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     cmake \
+    pkg-config \
+    libopenblas-dev \
+    liblapack-dev \
     libgl1 \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt ./
-RUN pip install --upgrade pip setuptools wheel cmake && pip install -r requirements.txt
+ENV CMAKE_ARGS="-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
+RUN pip install --upgrade pip setuptools wheel cmake \
+    && pip install --no-cache-dir --prefer-binary dlib==19.24.2 \
+    && pip install -r requirements.txt
 
 COPY . .
 
