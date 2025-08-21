@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: biomark
+    env: docker
+    plan: free
+    autoDeploy: true
+    healthCheckPath: /
+    disk:
+      name: media
+      mountPath: /app/media
+      sizeGB: 1
+    envVars:
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_DEBUG
+        value: "False"
+      - key: DJANGO_DB_PATH
+        value: /app/media/face_recognizer.db
+

@@ -113,34 +113,6 @@
     <div class="col-md-4">
         <div class="card">
             <div class="card-header">
-                <i class="fas fa-users me-2"></i> Development Team
-            </div>
-            <div class="card-body">
-                <div class="text-center mb-4">
-                    <div class="developer-image-container mb-3">
-                        <img src="{% static 'images/shiven_pandit.jpg' %}" class="developer-image" alt="Shiven Pandit">
-                    </div>
-                    <h5>Shiven Pandit</h5>
-                    <p class="text-muted mb-2">Lead Developer</p>
-                    <div class="social-links">
-                        <a href="https://www.linkedin.com/in/shiven-pandit-915561258/" target="_blank" class="btn btn-outline-primary btn-sm me-2" title="LinkedIn">
-                            <i class="fab fa-linkedin"></i>
-                        </a>
-                        <a href="https://github.com/ShivenPandit" target="_blank" class="btn btn-outline-dark btn-sm me-2" title="GitHub">
-                            <i class="fab fa-github"></i>
-                        </a>
-                        <a href="mailto:shivenpandit2@gmail.com" class="btn btn-outline-info btn-sm" title="Email">
-                            <i class="fas fa-envelope"></i>
-                        </a>
-                    </div>
-                </div>
-                
-                <hr>
-            </div>
-        </div>
-        
-        <div class="card mt-4">
-            <div class="card-header">
                 <i class="fas fa-envelope me-2"></i> Contact Information
             </div>
             <div class="card-body">
@@ -180,28 +152,6 @@
     
     .card.bg-light:hover {
         transform: translateY(-5px);
-    }
-    
-    /* Developer image styling */
-    .developer-image-container {
-        width: 180px;
-        height: 180px;
-        margin: 0 auto;
-        border-radius: 50%;
-        overflow: hidden;
-        border: 3px solid var(--primary-color);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-    }
-    
-    .developer-image {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.3s ease;
-    }
-    
-    .developer-image-container:hover .developer-image {
-        transform: scale(1.05);
     }
     
     /* Dark mode specific styles for this page */
