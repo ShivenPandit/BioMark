@@ -4,27 +4,17 @@ Django settings for face_recognition_web_project project.
 
 from pathlib import Path
 import os
-import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-your-secret-key-here')
+SECRET_KEY = 'django-insecure-your-secret-key-here'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() == 'true'
+DEBUG = True
 
-# Hosts/CSRF for Render
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
-_render_hostname = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
-if _render_hostname:
-    ALLOWED_HOSTS.append(_render_hostname)
-
-# CSRF trusted origins for Render
-CSRF_TRUSTED_ORIGINS = []
-if _render_hostname:
-    CSRF_TRUSTED_ORIGINS.append(f"https://{_render_hostname}")
+ALLOWED_HOSTS = []
 
 # Application definition
 INSTALLED_APPS = [
@@ -41,7 +31,6 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -71,9 +60,11 @@ TEMPLATES = [
 WSGI_APPLICATION = 'face_recognition_web_project.wsgi.application'
 
 # Database
-_db_path = os.environ.get('DJANGO_DB_PATH', str(BASE_DIR / 'face_recognizer.db'))
 DATABASES = {
-    'default': dj_database_url.config(default=f"sqlite:///{_db_path}", conn_max_age=600)
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'face_recognizer.db',
+    }
 }
 
 # Password validation
@@ -101,8 +92,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media files
 MEDIA_URL = '/media/'
@@ -115,6 +104,3 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'login' 
-
-# Ensure correct protocol handling behind reverse proxies/load balancers
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
